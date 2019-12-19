@@ -7,9 +7,9 @@
         <version>3.50</version>
         <relativePath />
     </parent>
-    <groupId>io.jenkins.plugins.luxair</groupId>
+    <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>image-tag-parameter</artifactId>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.164.1</jenkins.version>

@@ -1,10 +1,15 @@
-# Image Tag Parameter
+# Image Tag Parameter Plugin
+![Logo](img/registry.png)
+
+[Changelog](CHANGELOG.md)
+
+## Introduction
 This plungins allows you to define (container) image tags as parameter in you builds.  
-It use the Docker Registry HTTP API V2 to list tags availaible for an image.
+It use the Docker **Registry HTTP API V2** to list tags availaible for an image.
 
 ## Screenshots
-![Configuration](screen01.png)
-![Image Selection](screen02.png)
+![Configuration](img/screen01.png)
+![Image Selection](img/screen02.png)
 
 # how to build the Jenkins Plugin
  

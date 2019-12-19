@@ -1,0 +1,2 @@
+- v1.0 Initial Release
+- v1.1 Add unirest error inteceptor for handling hostname and connection error

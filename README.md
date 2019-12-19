@@ -11,16 +11,16 @@ It use the Docker **Registry HTTP API V2** to list tags availaible for an image.
 ![Configuration](img/screen01.png)
 ![Image Selection](img/screen02.png)
 
-# how to build the Jenkins Plugin
+## how to build the Jenkins Plugin
  
-## Install skdman
+### Install skdman
 ```
 sudo apt install zip
 curl -s "https://get.sdkman.io" | bash
 source .sdkman/bin/sdkman-init.sh 
 ```
 
-## install JDK and Maven
+### install JDK and Maven
 ```
 sdk install java 8.0.232-open
 javac -version
@@ -28,7 +28,7 @@ sdk install maven
 mvn -version
 ```
 
-## install fontconfig on ubuntu
+### install fontconfig on ubuntu
 ```
 sudo apt install -y fontconfig
 ```
@@ -39,7 +39,7 @@ Caused by: java.lang.NullPointerException
         at sun.awt.FontConfiguration.readFontConfigFile(FontConfiguration.java:219)
 ```
 
-## test, build and package
+### test, build and package
 ```
 mvn verify
 mvn hpi:run
@@ -47,5 +47,5 @@ mvn package
 ```
 Plugin **./target/Image_Tag_Parameter.hpi** can be installed on any jenkins instance
 
-## access the dev environment
+### access the dev environment
 Point the url to http://localhost:8080/jenkins

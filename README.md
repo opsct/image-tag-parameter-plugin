@@ -8,8 +8,11 @@ This plungins allows you to define (container) image tags as parameter in you bu
 It use the Docker **Registry HTTP API V2** to list tags availaible for an image.
 
 ## Screenshots
-![Configuration](img/screen01.png)
-![Image Selection](img/screen02.png)
+![Paremeter Type Selection](img/screen01.png)
+
+![Configuration](img/screen02.png)
+
+![Image Selection](img/screen03.png)
 
 ## how to build the Jenkins Plugin
  

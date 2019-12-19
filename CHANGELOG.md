@@ -1,2 +1,3 @@
 - v1.0 Initial Release
 - v1.1 Add unirest error inteceptor for handling hostname and connection error
+- v1.1.1 change pom.xml groupId to org.jenkins-ci.plugins

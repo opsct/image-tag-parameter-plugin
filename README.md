@@ -52,3 +52,9 @@ Plugin **./target/Image_Tag_Parameter.hpi** can be installed on any jenkins inst
 
 ### access the dev environment
 Point the url to http://localhost:8080/jenkins
+
+### Publish to Jenkins plugin repo
+see https://wiki.jenkins.io/display/JENKINS/Hosting+Plugins#HostingPlugins-Releasingtojenkins-ci.org (.m2/settings.xml and ssh keys)
+```
+mvn release:prepare release:perform
+```

@@ -116,6 +116,15 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
             return "Image Tag Parameter";
         }        
 
+        public String defaultRegistry() {
+            String defaultRegistry = ImageTagParameterConfiguration.get().getDefaultRegistry();
+            if (defaultRegistry.isEmpty()) {
+                defaultRegistry = "https://registry-1.docker.io";
+                ImageTagParameterConfiguration.get().setDefaultRegistry(defaultRegistry);
+            }
+            return defaultRegistry;
+        }
+
         public ListBoxModel doFillCredentialIdItems(@AncestorInPath Item context,
                                                     @QueryParameter String credentialId,
                                                     @QueryParameter String registry) {

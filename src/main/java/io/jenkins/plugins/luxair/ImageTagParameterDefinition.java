@@ -11,9 +11,7 @@ import hudson.model.SimpleParameterDefinition;
 import hudson.model.StringParameterValue;
 import hudson.security.ACL;
 import hudson.util.ListBoxModel;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
+import io.jenkins.plugins.luxair.util.StringUtil;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
@@ -22,27 +20,28 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
+
 
 public class ImageTagParameterDefinition extends SimpleParameterDefinition {
 
     private static final Logger logger = Logger.getLogger(ImageTagParameterDefinition.class.getName());
+    private static final ImageTagParameterConfiguration config = ImageTagParameterConfiguration.get();
 
-    private String image;
-    private String registry;
-    private String filter;
-    private String credentialId;
+    private final String image;
+    private final String registry;
+    private final String filter;
+    private final String credentialId;
 
     @DataBoundConstructor
     public ImageTagParameterDefinition(String name, String description, String image, String registry, String filter, String credentialId) {
         super(name, description);
         this.image = image;
-        this.registry = registry;
-        if (filter.isEmpty()) {
-            this.filter = ".*";
-        } else {
-            this.filter = filter;
-        }
-        this.credentialId = credentialId;
+        this.registry = StringUtil.isNotNullOrEmpty(registry) ? registry : config.getDefaultRegistry();
+        this.filter = StringUtil.isNotNullOrEmpty(filter) ? filter : ".*";
+        this.credentialId = StringUtil.isNotNullOrEmpty(credentialId) ? credentialId : "";
     }
 
     public String getImage() {
@@ -61,8 +60,22 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
         return credentialId;
     }
 
+    public List<String> getTags() {
+        List<String> imageTags;
+        String user = "";
+        String password = "";
+
+        StandardUsernamePasswordCredentials credential = findCredential(credentialId);
+        if (credential != null) {
+            user = credential.getUsername();
+            password = credential.getPassword().getPlainText();
+        }
+        imageTags = ImageTag.getTags(image, registry, filter, user, password);
+        return imageTags;
+    }
+
     private StandardUsernamePasswordCredentials findCredential(String credentialId) {
-        if (!credentialId.isEmpty()) {
+        if (StringUtil.isNotNullOrEmpty(credentialId)) {
             List<Item> items = Jenkins.get().getAllItems();
             for (Item item : items) {
                 List<StandardUsernamePasswordCredentials> creds = CredentialsProvider.lookupCredentials(
@@ -81,20 +94,6 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
             logger.info("CredentialId is empty");
         }
         return null;
-    }
-
-    public List<String> getTags() {
-        List<String> imageTags;
-        String user = "";
-        String password = "";
-
-        StandardUsernamePasswordCredentials credential = findCredential(credentialId);
-        if (credential != null) {
-            user = credential.getUsername();
-            password = credential.getPassword().getPlainText();
-        }
-        imageTags = ImageTag.getTags(image, registry, filter, user, password);
-        return imageTags;
     }
 
     private static final long serialVersionUID = 3938123092372L;
@@ -119,12 +118,7 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
         }        
 
         public String defaultRegistry() {
-            String defaultRegistry = ImageTagParameterConfiguration.get().getDefaultRegistry();
-            if (defaultRegistry.isEmpty()) {
-                defaultRegistry = "https://registry-1.docker.io";
-                ImageTagParameterConfiguration.get().setDefaultRegistry(defaultRegistry);
-            }
-            return defaultRegistry;
+            return config.getDefaultRegistry();
         }
 
         public ListBoxModel doFillCredentialIdItems(@AncestorInPath Item context,

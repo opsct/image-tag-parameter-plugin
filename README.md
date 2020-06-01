@@ -14,6 +14,13 @@ It use the Docker **Registry HTTP API V2** to list tags availaible for an image.
 
 ![Image Selection](img/screen03.png)
 
+## Definition in Pipeline
+```
+parameters {
+        imageTag(name: 'DOCKER_IMAGE', image: 'library/nginx', registry: 'https://registry-1.docker.io', filter: '.*')
+} 
+```
+
 ## how to build the Jenkins Plugin
  
 ### Install skdman

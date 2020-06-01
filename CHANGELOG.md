@@ -3,3 +3,4 @@
 - v1.1.1 Change pom.xml groupId to org.jenkins-ci.plugins
 - v1.2   Possibility to set a default registry in global configuration
 - v1.3   For compatibility with OAuth 2.0, we will also accept token under the name access_token
+- v1.4   Compatibility with Pipeline

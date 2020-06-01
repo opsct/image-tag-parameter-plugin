@@ -12,6 +12,7 @@ import kong.unirest.HttpResponse;
 import kong.unirest.Interceptor;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
+import kong.unirest.json.JSONObject;
 
 
 public class ImageTag {
@@ -74,7 +75,14 @@ public class ImageTag {
             .queryString("scope", "repository:" + image + ":pull")
             .asJson();
         if (response.isSuccess()) {
-            token = response.getBody().getObject().getString("token");
+            JSONObject jsonObject = response.getBody().getObject();
+            if (jsonObject.has("token")) {
+                token = jsonObject.getString("token");
+            } else if (jsonObject.has("access_token")) {
+                token = jsonObject.getString("access_token");
+            } else {
+                logger.warning("Token not received");
+            }
             logger.info("Token received");
         } else {
             logger.warning("Token not received");

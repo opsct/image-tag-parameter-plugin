@@ -104,9 +104,9 @@ public class ImageTag {
             .asJson();
         if (response.isSuccess()) {
             logger.info("HTTP status: " + response.getStatusText());
-            response.getBody().getObject().getJSONArray("tags").forEach(item -> {
-                tags.add(item.toString());
-            });
+            response.getBody().getObject()
+                .getJSONArray("tags")
+                .forEach(item -> tags.add(item.toString()));
         } else {
             logger.warning("HTTP status: " + response.getStatusText());
             tags.add(" " + response.getStatusText() + " !");

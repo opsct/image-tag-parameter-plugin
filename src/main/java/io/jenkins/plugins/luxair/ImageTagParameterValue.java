@@ -55,11 +55,7 @@ public class ImageTagParameterValue extends ParameterValue {
 
     @Override
     public VariableResolver<String> createVariableResolver(AbstractBuild<?, ?> build) {
-        return new VariableResolver<String>() {
-            public String resolve(String name) {
-                return ImageTagParameterValue.this.name.equals(name) ? value : null;
-            }
-        };
+        return name -> ImageTagParameterValue.this.name.equals(name) ? value : null;
     }
 
     @Override

@@ -16,6 +16,10 @@ public class ImageTag {
     private static final Logger logger = Logger.getLogger(ImageTag.class.getName());
     private static final Interceptor errorInterceptor = new ErrorInterceptor();
 
+    private ImageTag() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static List<String> getTags(String image, String registry, String filter, String user, String password) {
 
         String[] authService = getAuthService(registry);
@@ -45,9 +49,9 @@ public class ImageTag {
         if (m.find()) {
             rtn[0] = m.group(1);
             rtn[1] = m.group(2);
-            logger.info("realm:" + rtn[0] + ": service:" + rtn[1] + ":");
+            logger.info(() -> "realm:" + rtn[0] + ": service:" + rtn[1] + ":");
         } else {
-            logger.warning("No AuthService available from " + url);
+            logger.warning(() -> "No AuthService available from " + url);
         }
         return rtn;
     }

@@ -19,6 +19,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
+import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -88,7 +89,7 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
                     }
                 }
             }
-            logger.warning("Cannot find credential for :" + credentialId + ":");
+            logger.warning(() -> "Cannot find credential for :" + credentialId + ":");
         } else {
             logger.info("CredentialId is empty");
         }
@@ -112,6 +113,7 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
     public static class DescriptorImpl extends ParameterDescriptor {
 
         @Override
+        @Nonnull
         public String getDisplayName() {
             return "Image Tag Parameter";
         }        

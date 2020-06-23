@@ -8,7 +8,6 @@ import hudson.Extension;
 import hudson.model.Item;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
-import hudson.model.StringParameterValue;
 import hudson.security.ACL;
 import hudson.util.ListBoxModel;
 import io.jenkins.plugins.luxair.util.StringUtil;
@@ -100,12 +99,12 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
 
     @Override
     public ParameterValue createValue(String value) {
-        return new StringParameterValue(getName(), value, getDescription());
+        return new ImageTagParameterValue(getName(), value, getDescription());
     }
 
     @Override
     public ParameterValue createValue(StaplerRequest req, JSONObject jo) {
-        return req.bindJSON(StringParameterValue.class, jo);
+        return req.bindJSON(ImageTagParameterValue.class, jo);
     }
 
     @Symbol("imageTag")

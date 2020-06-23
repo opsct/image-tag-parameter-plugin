@@ -100,7 +100,7 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
 
     @Override
     public ParameterValue createValue(String value) {
-        return new ImageTagParameterValue(getName(), value, getDescription());
+        return new ImageTagParameterValue(getName(), image, value, getDescription());
     }
 
     @Override

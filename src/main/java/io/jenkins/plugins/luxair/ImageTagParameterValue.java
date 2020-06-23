@@ -18,16 +18,26 @@ import java.util.Locale;
 public class ImageTagParameterValue extends ParameterValue {
     @Exported(visibility = 4)
     @Restricted(NoExternalUse.class)
+    public String imageName;
+
+    @Exported(visibility = 4)
+    @Restricted(NoExternalUse.class)
+    public String imageTag;
+
+    @Exported(visibility = 4)
+    @Restricted(NoExternalUse.class)
     public String value;
 
     @DataBoundConstructor
-    public ImageTagParameterValue(String name, String value) {
-        this(name, value, null);
+    public ImageTagParameterValue(String name, String imageName, String imageTag) {
+        this(name, imageName, imageTag, null);
     }
 
-    public ImageTagParameterValue(String name, String value, String description) {
+    public ImageTagParameterValue(String name, String imageName, String imageTag, String description) {
         super(name, description);
-        this.value = value;
+        this.imageName = imageName;
+        this.imageTag = imageTag;
+        this.value = String.format("%s:%s", imageName, imageTag);
     }
 
     @Override
@@ -41,12 +51,12 @@ public class ImageTagParameterValue extends ParameterValue {
     @Override
     public void buildEnvironment(Run<?, ?> build, EnvVars env) {
         // exposes ImageName
-        env.put(String.format("%s_IMAGE", name), value.split(":")[0]);
-        env.put(String.format("%s_IMAGE", name).toUpperCase(Locale.ENGLISH), value.split(":")[0]); // backward compatibility pre 1.345
+        env.put(String.format("%s_IMAGE", name), imageName);
+        env.put(String.format("%s_IMAGE", name).toUpperCase(Locale.ENGLISH), imageName); // backward compatibility pre 1.345
 
         // exposes ImageTag
-        env.put(String.format("%s_TAG", name), value.split(":")[1]);
-        env.put(String.format("%s_TAG", name).toUpperCase(Locale.ENGLISH), value.split(":")[1]); // backward compatibility pre 1.345
+        env.put(String.format("%s_TAG", name), imageTag);
+        env.put(String.format("%s_TAG", name).toUpperCase(Locale.ENGLISH), imageTag); // backward compatibility pre 1.345
 
         // exposes ImageName:ImageTag (aka. value)
         env.put(name, value);

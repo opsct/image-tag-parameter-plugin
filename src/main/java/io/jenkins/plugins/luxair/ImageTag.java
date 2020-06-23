@@ -26,7 +26,6 @@ public class ImageTag {
         String token = getAuthToken(authService, image, user, password);
         List<String> tags = getImageTagsFromRegistry(image, registry, token);
         return tags.stream().filter(tag -> tag.matches(filter))
-            .map(tag -> image + ":" + tag)
             .sorted()
             .collect(Collectors.toList());
     }

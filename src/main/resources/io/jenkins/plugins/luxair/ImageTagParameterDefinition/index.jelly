@@ -13,7 +13,7 @@
             <select name="imageTag" style="width:300px;">
                 <j:forEach var="aTag" items="${it.tags}" varStatus="loop">
                     <j:choose>
-                        <option value="${aTag}">${aTag}</option>
+                        <option value="${aTag}">${it.image}:${aTag}</option>
                     </j:choose>
                 </j:forEach>
             </select>

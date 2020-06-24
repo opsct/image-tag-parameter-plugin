@@ -1,19 +1,18 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
-         xmlns:f="/lib/form"
->
+         xmlns:f="/lib/form">
 
     <f:entry title="${it.name}" description="${it.description}">
         <!-- this div is required because of ParametersDefinitionProperty.java#117 -->
         <div name="parameter" description="${it.description}">
-            <input type="hidden" name="name" value="${it.name}"/>
-            <input type="hidden" name="description" value="${it.description}"/>
-            <input type="hidden" name="imageName" value="${it.image}"/>
+            <input type="hidden" name="name" value="${it.name}" />
+            <input type="hidden" name="description" value="${it.description}" />
+            <input type="hidden" name="imageName" value="${it.image}" />
 
             <select name="imageTag" style="width:300px;">
                 <j:forEach var="aTag" items="${it.tags}" varStatus="loop">
                     <j:choose>
-                        <j:when test="${aTag.contains(it.defaultTag)}">
+                        <j:when test="${aTag.equals(it.defaultTag)}">
                             <option value="${aTag}" selected="selected">${it.image}:${aTag}</option>
                         </j:when>
                         <j:otherwise>

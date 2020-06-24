@@ -14,7 +14,12 @@ It use the Docker **Registry HTTP API V2** to list tags availaible for an image.
 
 ![Image Selection](img/screen03.png)
 
-## Definition in Pipeline
+## Usage
+
+### Definition in Freestyle / Pipeline UI
+This is basically showcased in the above [screenshots](#screenshots) :wink:
+
+### Definition in Pipeline
 ```groovy
 pipeline {
   agent any
@@ -32,6 +37,14 @@ pipeline {
   }
 }
 ```
+
+### Exposed Environment Variables (and params, since version 1.6) 
+Based on default Jenkins behaviour you can use `params.imageTagParameterName` to access the value of `imageName:imageTag`,
+but since you most of the time only need the image tag by itself the plugin also exports some additional environment variables.
+
+* **$imageTagParameterName_TAG** (or *env.imageTagParameterName_TAG*) contains only the tag value without the image name
+* **$imageTagParameterName_IMAGE** (or *env.imageTagParameterName_IMAGE*) contains only the name of the image without the tag
+
 
 ## how to build the Jenkins Plugin
  

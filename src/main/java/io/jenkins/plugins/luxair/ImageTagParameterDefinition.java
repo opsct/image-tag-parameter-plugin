@@ -6,6 +6,7 @@ import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import hudson.Extension;
 import hudson.model.Item;
+import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
 import hudson.model.SimpleParameterDefinition;
 import hudson.security.ACL;
@@ -27,20 +28,24 @@ import java.util.logging.Logger;
 
 public class ImageTagParameterDefinition extends SimpleParameterDefinition {
 
+    private static final long serialVersionUID = 3938123092372L;
     private static final Logger logger = Logger.getLogger(ImageTagParameterDefinition.class.getName());
     private static final ImageTagParameterConfiguration config = ImageTagParameterConfiguration.get();
 
     private final String image;
     private final String registry;
     private final String filter;
+    private final String defaultTag;
     private final String credentialId;
 
     @DataBoundConstructor
-    public ImageTagParameterDefinition(String name, String description, String image, String registry, String filter, String credentialId) {
+    public ImageTagParameterDefinition(String name, String description, String defaultTag,
+                                       String image, String registry, String filter, String credentialId) {
         super(name, description);
         this.image = image;
         this.registry = StringUtil.isNotNullOrEmpty(registry) ? registry : config.getDefaultRegistry();
         this.filter = StringUtil.isNotNullOrEmpty(filter) ? filter : ".*";
+        this.defaultTag = StringUtil.isNotNullOrEmpty(defaultTag) ? defaultTag : "";
         this.credentialId = StringUtil.isNotNullOrEmpty(credentialId) ? credentialId : "";
     }
 
@@ -54,6 +59,10 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
 
     public String getFilter() {
         return filter;
+    }
+
+    public String getDefaultTag() {
+        return defaultTag;
     }
 
     public String getCredentialId() {
@@ -96,7 +105,15 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
         return null;
     }
 
-    private static final long serialVersionUID = 3938123092372L;
+    @Override
+    public ParameterDefinition copyWithDefaultValue(ParameterValue defaultValue) {
+        if (defaultValue instanceof ImageTagParameterValue) {
+            ImageTagParameterValue value = (ImageTagParameterValue) defaultValue;
+            return new ImageTagParameterDefinition(getName(), getDescription(), value.getImageTag(),
+                getImage(), getRegistry(), getFilter(), getCredentialId());
+        }
+        return this;
+    }
 
     @Override
     public ParameterValue createValue(String value) {

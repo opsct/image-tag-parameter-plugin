@@ -40,6 +40,14 @@ public class ImageTagParameterValue extends ParameterValue {
         this.value = String.format("%s:%s", imageName, imageTag);
     }
 
+    public String getImageName() {
+        return imageName;
+    }
+
+    public String getImageTag() {
+        return imageTag;
+    }
+
     @Override
     public String getValue() {
         return value;

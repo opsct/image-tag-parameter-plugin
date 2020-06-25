@@ -5,8 +5,6 @@
 - v1.3   For compatibility with OAuth 2.0, we will also accept token under the name access_token
 - v1.4   Compatibility with Pipeline
 - v1.5   Fix pagination in HTML for display
-
-Snapshot
 - v1.6
     * Add support for default value
     * Add additional envVar export to get imageTag without image name

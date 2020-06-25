@@ -4,6 +4,7 @@ import kong.unirest.*;
 import kong.unirest.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -26,7 +27,7 @@ public class ImageTag {
         String token = getAuthToken(authService, image, user, password);
         List<String> tags = getImageTagsFromRegistry(image, registry, token);
         return tags.stream().filter(tag -> tag.matches(filter))
-            .sorted()
+            .sorted(Collections.reverseOrder())
             .collect(Collectors.toList());
     }
 

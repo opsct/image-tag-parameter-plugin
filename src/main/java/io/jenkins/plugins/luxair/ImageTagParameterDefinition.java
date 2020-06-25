@@ -98,7 +98,7 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
                     }
                 }
             }
-            logger.warning(() -> "Cannot find credential for :" + credentialId + ":");
+            logger.warning("Cannot find credential for :" + credentialId + ":");
         } else {
             logger.info("CredentialId is empty");
         }

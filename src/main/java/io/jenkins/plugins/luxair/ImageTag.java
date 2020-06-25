@@ -48,9 +48,9 @@ public class ImageTag {
         if (m.find()) {
             rtn[0] = m.group(1);
             rtn[1] = m.group(2);
-            logger.info(() -> "realm:" + rtn[0] + ": service:" + rtn[1] + ":");
+            logger.info("realm:" + rtn[0] + ": service:" + rtn[1] + ":");
         } else {
-            logger.warning(() -> "No AuthService available from " + url);
+            logger.warning("No AuthService available from " + url);
         }
         return rtn;
     }

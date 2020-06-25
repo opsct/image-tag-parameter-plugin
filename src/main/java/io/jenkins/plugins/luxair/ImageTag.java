@@ -1,5 +1,8 @@
 package io.jenkins.plugins.luxair;
 
+import kong.unirest.*;
+import kong.unirest.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -7,12 +10,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import kong.unirest.GetRequest;
-import kong.unirest.HttpResponse;
-import kong.unirest.Interceptor;
-import kong.unirest.JsonNode;
-import kong.unirest.Unirest;
-import kong.unirest.json.JSONObject;
 
 
 public class ImageTag {
@@ -20,13 +17,17 @@ public class ImageTag {
     private static final Logger logger = Logger.getLogger(ImageTag.class.getName());
     private static final Interceptor errorInterceptor = new ErrorInterceptor();
 
+    private ImageTag() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static List<String> getTags(String image, String registry, String filter, String user, String password) {
 
         String[] authService = getAuthService(registry);
         String token = getAuthToken(authService, image, user, password);
         List<String> tags = getImageTagsFromRegistry(image, registry, token);
         return tags.stream().filter(tag -> tag.matches(filter))
-            .map(tag -> image + ":" + tag)
+            .sorted(Collections.reverseOrder())
             .collect(Collectors.toList());
     }
 
@@ -113,7 +114,6 @@ public class ImageTag {
         }
         Unirest.shutDown();
 
-        Collections.sort(tags, Collections.reverseOrder());
         return tags;
     }
 }

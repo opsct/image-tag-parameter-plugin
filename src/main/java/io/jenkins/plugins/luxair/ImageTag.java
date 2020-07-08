@@ -58,7 +58,7 @@ public class ImageTag {
 
         if (type.equals("Basic")) {
             rtn[0] = "Basic";
-            logger.info("type:Basic:");
+            logger.info("AuthService: type=Basic");
 
             return rtn;
         }

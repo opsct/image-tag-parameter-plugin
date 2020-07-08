@@ -3,7 +3,10 @@ package io.jenkins.plugins.luxair;
 import kong.unirest.*;
 import kong.unirest.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -25,7 +28,7 @@ public class ImageTag {
 
         String[] authService = getAuthService(registry);
         String token = getAuthToken(authService, image, user, password);
-        List<String> tags = getImageTagsFromRegistry(image, registry, token);
+        List<String> tags = getImageTagsFromRegistry(image, registry, authService, token);
         return tags.stream().filter(tag -> tag.matches(filter))
             .sorted(Collections.reverseOrder())
             .collect(Collectors.toList());
@@ -33,9 +36,10 @@ public class ImageTag {
 
     private static String[] getAuthService(String registry) {
 
-        String[] rtn = new String[2];
-        rtn[0] = "";
-        rtn[1] = "";
+        String[] rtn = new String[3];
+        rtn[0] = ""; // type
+        rtn[1] = ""; // realm
+        rtn[2] = ""; // service
         String url = registry + "/v2/";
 
         Unirest.config().reset();
@@ -44,23 +48,59 @@ public class ImageTag {
             .getHeaders().getFirst("Www-Authenticate");
         Unirest.shutDown();
 
-        String pattern = "Bearer realm=\"(\\S+)\",service=\"(\\S+)\"";
-        Matcher m = Pattern.compile(pattern).matcher(headerValue);
-        if (m.find()) {
-            rtn[0] = m.group(1);
-            rtn[1] = m.group(2);
-            logger.info("realm:" + rtn[0] + ": service:" + rtn[1] + ":");
-        } else {
-            logger.warning("No AuthService available from " + url);
+        String type = "";
+
+        String typePattern = "^(\\S+)";
+        Matcher typeMatcher = Pattern.compile(typePattern).matcher(headerValue);
+        if (typeMatcher.find()) {
+            type = typeMatcher.group(1);
         }
+
+        if (type.equals("Basic")) {
+            rtn[0] = "Basic";
+            logger.info("AuthService: type=Basic");
+
+            return rtn;
+        }
+
+        if (type.equals("Bearer")) {
+            String pattern = "Bearer realm=\"(\\S+)\",service=\"(\\S+)\"";
+            Matcher m = Pattern.compile(pattern).matcher(headerValue);
+            if (m.find()) {
+                rtn[0] = "Bearer";
+                rtn[1] = m.group(1);
+                rtn[2] = m.group(2);
+                logger.info("AuthService: type=Bearer, realm=" + rtn[0] + ", service=" + rtn[1]);
+            } else {
+                logger.warning("No AuthService available from " + url);
+            }
+
+            return rtn;
+        }
+
+        // Ops!
+        logger.warning("Unknown authorization type " + type);
+
         return rtn;
     }
 
     private static String getAuthToken(String[] authService, String image, String user, String password) {
 
-        String realm = authService[0];
-        String service = authService[1];
+        String type = authService[0];
         String token = "";
+
+        if (type.equals("Basic")) {
+            try {
+                token = Base64.getEncoder().encodeToString((user + ":" + password).getBytes("UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                logger.warning("UnsupportedEncodingException when creating basic token");
+            }
+
+            return token;
+        }
+
+        String realm = authService[1];
+        String service = authService[2];
 
         Unirest.config().reset();
         Unirest.config().enableCookieManagement(false).interceptor(errorInterceptor);
@@ -93,14 +133,14 @@ public class ImageTag {
         return token;
     }
 
-    private static List<String> getImageTagsFromRegistry(String image, String registry, String token) {
+    private static List<String> getImageTagsFromRegistry(String image, String registry, String[] authService, String token) {
         List<String> tags = new ArrayList<>();
         String url = registry + "/v2/{image}/tags/list";
 
         Unirest.config().reset();
         Unirest.config().enableCookieManagement(false).interceptor(errorInterceptor);
         HttpResponse<JsonNode> response = Unirest.get(url)
-            .header("Authorization", "Bearer " + token)
+            .header("Authorization", authService[0] + " " + token)
             .routeParam("image", image)
             .asJson();
         if (response.isSuccess()) {

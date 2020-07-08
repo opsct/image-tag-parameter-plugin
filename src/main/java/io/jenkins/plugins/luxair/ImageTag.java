@@ -70,7 +70,7 @@ public class ImageTag {
                 rtn[0] = "Bearer";
                 rtn[1] = m.group(1);
                 rtn[2] = m.group(2);
-                logger.info("type:Bearer: realm:" + rtn[0] + ": service:" + rtn[1] + ":");
+                logger.info("AuthService: type=Bearer, realm=" + rtn[0] + ", service=" + rtn[1]);
             } else {
                 logger.warning("No AuthService available from " + url);
             }

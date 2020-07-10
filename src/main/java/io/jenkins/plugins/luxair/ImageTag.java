@@ -28,7 +28,7 @@ public class ImageTag {
 
         String[] authService = getAuthService(registry);
         String token = getAuthToken(authService, image, user, password);
-        List<String> tags = getImageTagsFromRegistry(image, registry, authService, token);
+        List<String> tags = getImageTagsFromRegistry(image, registry, authService[0], token);
         return tags.stream().filter(tag -> tag.matches(filter))
             .sorted(Collections.reverseOrder())
             .collect(Collectors.toList());
@@ -133,14 +133,14 @@ public class ImageTag {
         return token;
     }
 
-    private static List<String> getImageTagsFromRegistry(String image, String registry, String[] authService, String token) {
+    private static List<String> getImageTagsFromRegistry(String image, String registry, String authType, String token) {
         List<String> tags = new ArrayList<>();
         String url = registry + "/v2/{image}/tags/list";
 
         Unirest.config().reset();
         Unirest.config().enableCookieManagement(false).interceptor(errorInterceptor);
         HttpResponse<JsonNode> response = Unirest.get(url)
-            .header("Authorization", authService[0] + " " + token)
+            .header("Authorization", authType + " " + token)
             .routeParam("image", image)
             .asJson();
         if (response.isSuccess()) {

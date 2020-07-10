@@ -8,3 +8,4 @@
 - v1.6
     * Add support for default value
     * Add additional envVar export to get imageTag without image name
+- v1.7   Add support for Basic authentication

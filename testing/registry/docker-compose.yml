@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+
+  echo:
+    image: registry:latest
+    container_name: registry
+    restart: unless-stopped
+    networks:
+      - "traefik"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.registry.rule=Host(`registry.yourdomain.org`)"
+      - "traefik.http.routers.registry.entrypoints=webs"
+      - "traefik.http.routers.registry.tls.certresolver=certresolver"
+      - "traefik.http.middlewares.registry-auth.basicauth.users=test:$$apr1$$95fzktrw$$g6He4LQuk5JHeqAzr4ETh/"
+      - "traefik.http.routers.registry.middlewares=registry-auth@docker"
+
+networks:
+  traefik:
+    external: true

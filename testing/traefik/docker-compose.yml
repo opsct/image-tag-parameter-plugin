@@ -1,0 +1,41 @@
+version: "3.7"
+
+services:
+
+  traefik:
+    image: traefik:v2.2
+    container_name: "traefik"
+    restart: unless-stopped
+    command:
+      - "--api=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.webs.address=:443"
+      - "--entrypoints.traefik.address=:8080"
+      - "--certificatesresolvers.certresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.certresolver.acme.email=postmaster@yourdomain.org"
+      - "--certificatesresolvers.certresolver.acme.storage=/letsencrypt/acme.json"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`traefik.yourdomain.org`)"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.entrypoints=traefik"
+      - "traefik.http.routers.api.tls.certresolver=certresolver"
+    networks:
+      - traefik
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - letsencrypt:/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  letsencrypt:
+
+networks:
+  traefik:
+    name: traefik
+

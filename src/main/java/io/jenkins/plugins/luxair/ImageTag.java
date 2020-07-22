@@ -1,10 +1,6 @@
 package io.jenkins.plugins.luxair;
 
-import kong.unirest.*;
-import kong.unirest.json.JSONObject;
-
 import java.io.UnsupportedEncodingException;
-
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
@@ -14,6 +10,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import kong.unirest.GetRequest;
+import kong.unirest.HttpResponse;
+import kong.unirest.Interceptor;
+import kong.unirest.JsonNode;
+import kong.unirest.Unirest;
+import kong.unirest.json.JSONObject;
 
 public class ImageTag {
 
@@ -24,11 +26,15 @@ public class ImageTag {
         throw new IllegalStateException("Utility class");
     }
 
-    public static List<String> getTags(String image, String registry, String filter, String user, String password) {
-
+    public static List<String> getTags(String image, String registry, String filter, String user, String password, boolean isGooglePrivateRegistry) {
         String[] authService = getAuthService(registry);
         String token = getAuthToken(authService, image, user, password);
-        List<String> tags = getImageTagsFromRegistry(image, registry, authService[0], token);
+        List<String> tags;
+        if (registry.contains("gcr.io") || isGooglePrivateRegistry) {
+            tags = getImageTagsFromGooglePrivateRegistry(image, registry, authService[0], token);
+        } else {
+            tags = getImageTagsFromRegistry(image, registry, authService[0], token);
+        }
         return tags.stream().filter(tag -> tag.matches(filter))
             .sorted(Collections.reverseOrder())
             .collect(Collectors.toList());
@@ -111,7 +117,7 @@ public class ImageTag {
         } else {
             logger.info("No basic authentication");
         }
-        HttpResponse<JsonNode> response = request 
+        HttpResponse<JsonNode> response = request
             .queryString("service", service)
             .queryString("scope", "repository:" + image + ":pull")
             .asJson();
@@ -131,6 +137,40 @@ public class ImageTag {
         Unirest.shutDown();
 
         return token;
+    }
+
+    private static List<String> getImageTagsFromGooglePrivateRegistry(String image, String registry, String authType, String token) {
+        List<String> tags = new ArrayList<>();
+        String getTokenUrl = registry + "/v2/token?service=gcr.io&scope=repository:{image}:pull";
+        String getTagsUrl = registry + "/v2/" + image + "/tags/list";
+
+        Unirest.config().reset();
+        Unirest.config().enableCookieManagement(false).interceptor(errorInterceptor);
+        HttpResponse<JsonNode> response = Unirest.get(getTokenUrl)
+            .header("Authorization", authType + " " + token)
+            .routeParam("image", image)
+            .asJson();
+        if (response.isSuccess() && response.getBody().getObject().has("token")) {
+            logger.info("HTTP status: " + response.getStatusText());
+            HttpResponse<JsonNode> response2 = Unirest.get(getTagsUrl)
+            .header("Authorization", "Bearer " + response.getBody().getObject().getString("token"))
+            .asJson();
+            if (response2.isSuccess()) {
+                logger.info("HTTP status: " + response2.getStatusText());
+                response2.getBody().getObject()
+                    .getJSONArray("tags")
+                    .forEach(item -> tags.add(item.toString()));
+            } else {
+                logger.warning("HTTP status: " + response2.getStatusText());
+                tags.add(" " + response2.getStatusText() + " !");
+            }
+        } else {
+            logger.warning("HTTP status: " + response.getStatusText());
+            tags.add(" " + response.getStatusText() + " !");
+        }
+        Unirest.shutDown();
+
+        return tags;
     }
 
     private static List<String> getImageTagsFromRegistry(String image, String registry, String authType, String token) {

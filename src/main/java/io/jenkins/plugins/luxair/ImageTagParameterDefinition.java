@@ -1,9 +1,22 @@
 package io.jenkins.plugins.luxair;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.logging.Logger;
+
+import javax.annotation.Nonnull;
+
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.AncestorInPath;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+
 import hudson.Extension;
 import hudson.model.Item;
 import hudson.model.ParameterDefinition;
@@ -14,16 +27,6 @@ import hudson.util.ListBoxModel;
 import io.jenkins.plugins.luxair.util.StringUtil;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-
-import javax.annotation.Nonnull;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Logger;
 
 
 public class ImageTagParameterDefinition extends SimpleParameterDefinition {
@@ -79,7 +82,12 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
             user = credential.getUsername();
             password = credential.getPassword().getPlainText();
         }
-        imageTags = ImageTag.getTags(image, registry, filter, user, password);
+
+        if (credential != null && "GoogleContainerRegistryCredential".equals(credential.getClass().getSimpleName())) {
+            imageTags = ImageTag.getTags(image, registry, filter, user, password, true);
+        } else {
+            imageTags = ImageTag.getTags(image, registry, filter, user, password, false);
+        }
         return imageTags;
     }
 
@@ -133,7 +141,7 @@ public class ImageTagParameterDefinition extends SimpleParameterDefinition {
         @Nonnull
         public String getDisplayName() {
             return "Image Tag Parameter";
-        }        
+        }
 
         public String defaultRegistry() {
             return config.getDefaultRegistry();
